@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -22,8 +23,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.CheckCircleOutline
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -44,7 +51,10 @@ import androidx.navigation.NavController
 import com.reezvan.todoapp.model.WorkModel
 import com.reezvan.todoapp.viewModel.TodoViewModel
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -218,7 +228,12 @@ fun HomeScreen(navController: NavController, todoViewModel: TodoViewModel) {
         }else {
             LazyColumn(modifier = Modifier.fillMaxSize().padding(innerPadding).padding(8.dp)) {
                 items(workList.size) { work ->
-                    EachTodoLook(workList.elementAt(work))
+                    EachTodoLook(
+                        workList.elementAt(work),
+                        onDelete = { todoViewModel.deleteWork(work = workList.elementAt(work)) }
+                    ){
+
+                    }
                     Spacer(Modifier.height(8.dp))
                 }
             }
@@ -229,18 +244,53 @@ fun HomeScreen(navController: NavController, todoViewModel: TodoViewModel) {
 }
 
 @Composable
-fun EachTodoLook(model: WorkModel) {
+fun EachTodoLook(model: WorkModel,onDelete:()-> Unit,onEdit:()-> Unit) {
     val completed by remember { mutableStateOf(false) }
 
     val uiColor=if(isSystemInDarkTheme()) Color.White else Color.Black
-    Column(modifier = Modifier.fillMaxWidth().height(120.dp)
-        .background(color = MaterialTheme.colorScheme.onSurface, shape = RoundedCornerShape(8.dp)).padding(16.dp))
+    Column(modifier = Modifier.fillMaxWidth().height(122.dp)
+        .background(color = MaterialTheme.colorScheme.onSurface, shape = RoundedCornerShape(8.dp)))
     {
-        if (completed){
-
-        }else{
             Row(modifier = Modifier.fillMaxSize().fillMaxHeight()) {
-                Column(modifier = Modifier.fillMaxWidth(0.65f).fillMaxHeight()) {
+
+                Column(modifier = Modifier.fillMaxHeight()) {
+                    IconButton(onClick ={onEdit}, modifier = Modifier.size(40.dp).padding(start = 2.dp) ) {
+                        Icon(
+                            imageVector = Icons.Filled.EditNote,
+                            contentDescription = null,
+                            tint=uiColor
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(2.dp))
+                    IconButton(onClick = {completed !=completed}, modifier = Modifier.size(40.dp)) {
+                        Icon(
+                            imageVector =  if(completed)Icons.Filled.CheckCircle else Icons.Filled.CheckCircleOutline ,
+                            contentDescription = null,
+                            tint=uiColor
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    IconButton(onClick = {onDelete},modifier = Modifier.padding(bottom = 4.dp).size(40.dp)) {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = "",
+                            tint=uiColor,
+
+                        )
+
+                    }
+
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                if (completed){
+                    HorizontalDivider(
+                        modifier = Modifier.fillMaxWidth().height(2.dp),
+                        thickness = DividerDefaults.Thickness,
+                        color = Color.Gray
+                    )
+                }
+
+                Column(modifier = Modifier.fillMaxWidth(0.5f).fillMaxHeight()) {
                     Text(
                         text = model.workName,
                         fontSize = 16.sp,
@@ -248,7 +298,8 @@ fun EachTodoLook(model: WorkModel) {
                         fontFamily = FontFamily.Monospace,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        color = uiColor
+                        color = uiColor,
+                        modifier = Modifier.padding(top = 8.dp)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -283,7 +334,8 @@ fun EachTodoLook(model: WorkModel) {
                         fontFamily = FontFamily.Monospace,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        color = uiColor
+                        color = uiColor,
+                        modifier = Modifier.padding(top = 8.dp)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -294,10 +346,11 @@ fun EachTodoLook(model: WorkModel) {
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         color = uiColor
+
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Deadline is:",
+                        text = "Deadline:",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = FontFamily.Monospace,
@@ -322,4 +375,3 @@ fun EachTodoLook(model: WorkModel) {
 
     }
 
-}
